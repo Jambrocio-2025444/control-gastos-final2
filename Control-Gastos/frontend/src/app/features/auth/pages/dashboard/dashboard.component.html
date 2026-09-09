@@ -11,7 +11,6 @@
         <h1 class="font-display text-2xl font-semibold text-[#1F4D2C]">Su panorama financiero</h1>
         <p class="text-sm text-gray-500 mt-1">{{ 'Septiembre 2026' }} · actualizado hoy</p>
       </div>
-      <!-- Botón con texto e ícono en verde bosque (#1F4D2C) -->
       <button class="bg-white border border-[#3F8A4D]/30 rounded-lg px-4 py-2 text-sm font-semibold text-[#1F4D2C] shadow-sm hover:border-[#4CAF50] hover:bg-[#EAF3E8] transition flex items-center gap-2">
         <svg class="w-4 h-4 text-[#1F4D2C]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -20,14 +19,13 @@
       </button>
     </div>
 
-  <!-- KPIs -->
+    <!-- KPIs -->
     <div class="grid grid-cols-4 gap-5 mt-6">
 
-      <!-- KPI Ingresos (Fijo) -->
+      <!-- Ingresos (real) -->
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <div class="flex items-start justify-between">
           <p class="text-xs text-gray-500">Ingresos</p>
-          <!-- Ícono sin fondo circular -->
           <svg class="w-5 h-5 text-finance-bright" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
           </svg>
@@ -38,41 +36,49 @@
         <p class="text-xs mt-1.5 text-finance-bright">Total registrado</p>
       </div>
 
-      <!-- KPIs dinámicos (*ngFor) -->
-      <div *ngFor="let kpi of kpis" class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+      <!-- Egresos (real) -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <div class="flex items-start justify-between">
-          <p class="text-xs text-gray-500">{{ kpi.label }}</p>
-          <!-- Ícono dinámico sin fondo circular -->
-          <ng-container [ngSwitch]="kpi.iconType">
-            <svg *ngSwitchCase="'trending-down'" 
-                class="w-5 h-5" 
-                [ngClass]="kpi.trend === 'up' ? 'text-finance-bright' : 'text-finance-orange'"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"/>
-            </svg>
-            <svg *ngSwitchCase="'piggy-bank'" 
-                class="w-5 h-5" 
-                [ngClass]="kpi.trend === 'up' ? 'text-finance-bright' : 'text-finance-orange'"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 10h1a1 1 0 011 1v2a1 1 0 01-1 1h-1m-1-4v6a2 2 0 01-2 2h-1v2h-2v-2H9v2H7v-2H6a2 2 0 01-2-2v-2H3v-2h1v-1a5 5 0 015-5h4a5 5 0 013 1l2-1v3l-1 .5"/>
-              <circle cx="16" cy="10" r="0.5" fill="currentColor" stroke="none"/>
-            </svg>
-            <svg *ngSwitchCase="'calendar'" 
-                class="w-5 h-5" 
-                [ngClass]="kpi.trend === 'up' ? 'text-finance-bright' : 'text-finance-orange'"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-          </ng-container>
+          <p class="text-xs text-gray-500">Egresos</p>
+          <svg class="w-5 h-5 text-finance-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"/>
+          </svg>
         </div>
-        <p class="text-2xl font-bold text-finance-forest mt-1">{{ kpi.value }}</p>
-        <p class="text-xs mt-1.5"
-          [ngClass]="kpi.trend === 'up' ? 'text-finance-bright' : 'text-finance-orange'">
-          {{ kpi.change }}
+        <p class="text-2xl font-bold text-finance-forest mt-1">
+          Q {{ (totalExpenses$ | async) ?? 0 | number:'1.0-2' }}
         </p>
+        <p class="text-xs mt-1.5 text-finance-orange">Total registrado</p>
+      </div>
+
+      <!-- Ahorros (mock, módulo pendiente) -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-start justify-between">
+          <p class="text-xs text-gray-500">Ahorros</p>
+          <svg class="w-5 h-5 text-finance-bright" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 10h1a1 1 0 011 1v2a1 1 0 01-1 1h-1m-1-4v6a2 2 0 01-2 2h-1v2h-2v-2H9v2H7v-2H6a2 2 0 01-2-2v-2H3v-2h1v-1a5 5 0 015-5h4a5 5 0 013 1l2-1v3l-1 .5"/>
+            <circle cx="16" cy="10" r="0.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <p class="text-2xl font-bold text-finance-forest mt-1">{{ savingsAmount }}</p>
+        <p class="text-xs mt-1.5 text-finance-bright">Pendiente de implementar</p>
+      </div>
+
+      <!-- Deudas del mes (real) -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-start justify-between">
+          <p class="text-xs text-gray-500">Deudas del mes</p>
+          <svg class="w-5 h-5 text-finance-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <p class="text-2xl font-bold text-finance-forest mt-1">
+          Q {{ (totalDebts$ | async) ?? 0 | number:'1.0-2' }}
+        </p>
+        <p class="text-xs mt-1.5 text-finance-orange">{{ (debtHealthPercent$ | async) ?? 0 }}% de tus ingresos</p>
       </div>
 
     </div>
+
     <!-- Flujo de efectivo + Salud de deuda -->
     <div class="grid grid-cols-3 gap-5 mt-6">
 
@@ -96,31 +102,38 @@
         </div>
       </div>
 
-      <!-- Salud de deuda -->
+      <!-- Salud de deuda (real) -->
       <div class="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
         <div class="flex items-center justify-between">
           <h2 class="font-display font-semibold text-[#1F4D2C]">Salud de deuda</h2>
-          <!-- Ícono de alerta naranja directo, sin contenedor ni fondo circular -->
-          <svg class="w-5 h-5 text-[#D9834A]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <svg class="w-5 h-5" [ngClass]="(debtHealthPercent$ | async)! > debtHealthGoal ? 'text-[#D9834A]' : 'text-[#4CAF50]'"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <circle cx="12" cy="12" r="9"/>
             <path stroke-linecap="round" d="M12 8v5"/>
             <circle cx="12" cy="16" r="0.75" fill="currentColor" stroke="none"/>
           </svg>
         </div>
-        <p class="text-5xl font-bold text-[#1F4D2C] mt-4">{{ debtHealthPercent }}%</p>
-        <p class="text-sm text-gray-500 mt-3">Su carga de deuda está dentro de un rango manejable.</p>
+        <p class="text-5xl font-bold text-[#1F4D2C] mt-4">{{ (debtHealthPercent$ | async) ?? 0 }}%</p>
+        <p class="text-sm text-gray-500 mt-3">
+          {{ (debtHealthPercent$ | async)! > debtHealthGoal
+            ? 'Su carga de deuda está por encima de lo recomendado.'
+            : 'Su carga de deuda está dentro de un rango manejable.' }}
+        </p>
 
         <div class="w-full h-2.5 bg-[#EAF3E8] rounded-full mt-5 overflow-hidden">
-          <div class="h-full bg-[#4CAF50] rounded-full" [style.width.%]="debtHealthPercent"></div>
+          <div class="h-full rounded-full"
+            [ngClass]="(debtHealthPercent$ | async)! > debtHealthGoal ? 'bg-[#D9834A]' : 'bg-[#4CAF50]'"
+            [style.width.%]="(debtHealthPercent$ | async)"></div>
         </div>
         <p class="text-xs text-[#4CAF50] mt-2">Meta sugerida: mantenerte debajo del {{ debtHealthGoal }}%.</p>
       </div>
     </div>
 
-    <!-- Aviso de salario -->
+    <!-- Aviso de salario (real) -->
     <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mt-5 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <span class="w-10 h-10 rounded-xl bg-finance-pale flex items-center justify-center text-finance-bright flex-shrink-0">
+        <span class="w-10 h-10 rounded-xl bg-finance-pale flex items-center justify-center flex-shrink-0"
+          [ngClass]="(salaryCoversDebt$ | async) ? 'text-finance-bright' : 'text-[#D9834A]'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <circle cx="12" cy="12" r="9"/>
             <path stroke-linecap="round" d="M12 8v5"/>
@@ -129,14 +142,15 @@
         </span>
         <div>
           <p class="font-medium text-finance-forest text-sm">
-            {{ salaryCoversDebt ? 'Su sueldo sí cubre sus deudas' : 'Su sueldo no cubre tus deudas' }}
+            {{ (salaryCoversDebt$ | async) ? 'Su sueldo sí cubre sus deudas' : 'Su sueldo no cubre sus deudas' }}
           </p>
           <p class="text-xs text-gray-500 mt-0.5">
-            Después de cubrir {{ debtTotal }} de deudas, le quedan {{ remainingAfterDebt }} para gastos y ahorro.
+            Después de cubrir Q {{ (totalDebts$ | async) ?? 0 | number:'1.0-2' }} de deudas,
+            le quedan Q {{ (remainingAfterDebt$ | async) ?? 0 | number:'1.0-2' }} para gastos y ahorro.
           </p>
         </div>
       </div>
-      <button class="bg-finance-bright text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:brightness-110 transition">
+      <button routerLink="/expenses" class="bg-finance-bright text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:brightness-110 transition">
         Ver detalle
       </button>
     </div>

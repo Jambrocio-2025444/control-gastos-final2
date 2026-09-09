@@ -1,15 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { combineLatest, map } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 import { IncomeService } from '../../../../core/services/income.service';
+import { ExpenseService } from '../../../../core/services/expense.service';
 import { User } from '../../../../core/models/user.model';
-
-interface KpiCard {
-  label: string;
-  value: string;
-  change: string;
-  trend: 'up' | 'down';
-  iconType: 'trending-up' | 'trending-down' | 'piggy-bank' | 'calendar';
-}
 
 interface CashFlowWeek {
   label: string;
@@ -26,18 +20,31 @@ interface CashFlowWeek {
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private incomeService = inject(IncomeService);
+  private expenseService = inject(ExpenseService);
 
   currentUser: User | null = null;
 
-  // Dato real — viene de IncomeService, la misma fuente que usa el módulo de Ingresos
   totalIncome$ = this.incomeService.total$;
+  totalExpenses$ = this.expenseService.total$;
+  totalDebts$ = this.expenseService.totalByClassification('deuda');
 
-  // Estos tres siguen siendo de ejemplo hasta que existan sus módulos correspondientes
-  kpis: KpiCard[] = [
-    { label: 'Egresos', value: 'Q 0', change: '↑ 12.4% vs. julio', trend: 'down', iconType: 'trending-down' },
-    { label: 'Ahorros', value: 'Q 0', change: '22.4% de tus ingresos', trend: 'up', iconType: 'piggy-bank' },
-    { label: 'Deudas del mes', value: 'Q 0', change: '28% de tus ingresos', trend: 'down', iconType: 'calendar' },
-  ];
+  debtHealthGoal = 35;
+
+  debtHealthPercent$ = combineLatest([this.totalDebts$, this.totalIncome$]).pipe(
+    map(([debts, income]) => income > 0 ? Math.round((debts / income) * 1000) / 10 : 0)
+  );
+
+  salaryCoversDebt$ = combineLatest([this.totalDebts$, this.totalIncome$]).pipe(
+    map(([debts, income]) => debts <= income)
+  );
+
+  remainingAfterDebt$ = combineLatest([this.totalIncome$, this.totalDebts$]).pipe(
+    map(([income, debts]) => income - debts)
+  );
+
+  // Ahorros sigue siendo mock hasta construir ese módulo
+  savingsAmount = 'Q 1,680';
+  savingsProgressPercent = 40;
 
   cashFlow: CashFlowWeek[] = [
     { label: 'Sem 1', ingresos: 55, egresos: 30 },
@@ -46,18 +53,9 @@ export class DashboardComponent implements OnInit {
     { label: 'Sem 4', ingresos: 100, egresos: 60 },
   ];
 
-  debtHealthPercent = 0;
-  debtHealthGoal = 0;
-
-  salaryCoversDebt = true;
-  remainingAfterDebt = 'Q 0';
-  debtTotal = 'Q ';
-
-  savingsAmount = 'Q 0';
-  savingsProgressPercent = 40;
-
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.incomeService.loadIncomes();
+    this.expenseService.loadExpenses();
   }
 }
