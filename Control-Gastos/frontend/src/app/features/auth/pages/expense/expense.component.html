@@ -1,0 +1,196 @@
+<div class="min-h-screen flex bg-[#E3EBE3] font-sans text-[#2D3748]">
+  <app-sidebar></app-sidebar>
+
+  <main class="ml-64 flex-1 p-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-[#1E4620]">Gestión de Egresos</h1>
+        <p class="text-sm text-[#718096] mt-1">Septiembre 2026 · actualizado hoy</p>
+      </div>
+      <button class="bg-white border border-[#E2E8F0] rounded-lg px-4 py-2 text-sm font-medium text-[#2D3748] shadow-sm hover:border-[#48AD49] transition">
+        Este mes
+      </button>
+    </div>
+
+    <!-- KPIs por clasificación, con ícono -->
+    <div class="grid grid-cols-3 gap-5 mt-6">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
+        <div>
+          <p class="text-xs text-[#718096]">Gastos Fijos</p>
+          <p class="text-2xl font-bold text-[#2D3748] mt-1">Q {{ (totalFijos$ | async) ?? 0 | number:'1.0-2' }}</p>
+        </div>
+        <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
+        <div>
+          <p class="text-xs text-[#718096]">Gastos Variables</p>
+          <p class="text-2xl font-bold text-[#2D3748] mt-1">Q {{ (totalVariables$ | async) ?? 0 | number:'1.0-2' }}</p>
+        </div>
+        <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
+        <div>
+          <p class="text-xs text-[#718096]">Deudas</p>
+          <p class="text-2xl font-bold text-[#2D3748] mt-1">Q {{ (totalDeudas$ | async) ?? 0 | number:'1.0-2' }}</p>
+        </div>
+        <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-5 mt-6">
+
+      <!-- Formulario -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#E2E8F0]">
+        <h2 class="font-display font-semibold text-[#1E4620]">
+          {{ editingId ? 'Editar Egreso' : 'Registrar Egreso' }}
+        </h2>
+
+        <div *ngIf="errorMessage" class="bg-[#FFEBEE] border border-[#C62828]/30 text-[#C62828] px-3 py-2 rounded-lg text-xs mt-3">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4 space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Tipo</label>
+            <select formControlName="classification" (change)="onClassificationChange()"
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]">
+              <option value="fijo">Fijos o prioritarios</option>
+              <option value="variable">Variables / 2da prioridad</option>
+              <option value="deuda">Deudas</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Categoría</label>
+            <select formControlName="category"
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]">
+              <option value="" disabled>Selecciona una categoría</option>
+              <option *ngFor="let cat of categoryOptions" [value]="cat">{{ cat }}</option>
+            </select>
+            <p *ngIf="f['category'].invalid && f['category'].touched" class="text-xs text-[#C62828] mt-1">
+              Debes seleccionar una categoría.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Monto</label>
+            <input type="number" step="0.01" formControlName="amount" placeholder="Q 0.00"
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]" />
+            <p *ngIf="f['amount'].errors?.['min'] && f['amount'].touched" class="text-xs text-[#C62828] mt-1">
+              El monto debe ser mayor que cero.
+            </p>
+            <p *ngIf="f['amount'].errors?.['max'] && f['amount'].touched" class="text-xs text-[#C62828] mt-1">
+              El monto no puede tener más de 10 dígitos enteros.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Descripción</label>
+            <input type="text" formControlName="description" placeholder="Ej. Pago de alquiler depto mes agosto"
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]" />
+            <p *ngIf="f['description'].invalid && f['description'].touched" class="text-xs text-[#C62828] mt-1">
+              La descripción es requerida.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-[#2D3748] mb-1">Fecha</label>
+              <input type="date" formControlName="expense_date"
+                class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]" />
+              <p *ngIf="f['expense_date'].invalid && f['expense_date'].touched" class="text-xs text-[#C62828] mt-1">
+                La fecha es requerida.
+              </p>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-[#2D3748] mb-1">Periodo</label>
+              <div class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm bg-[#E5F2E5] text-[#718096]">
+                Mensual
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Observaciones</label>
+            <textarea formControlName="notes" rows="2" placeholder="Detalles adicionales, No. de comprobante o cuotas pendientes..."
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]"></textarea>
+          </div>
+
+          <button type="submit" [disabled]="isSaving"
+            class="w-full bg-[#48AD49] text-white py-2.5 rounded-lg text-sm font-semibold hover:brightness-110 transition disabled:opacity-50">
+            + {{ editingId ? 'Actualizar' : 'Guardar' }} Egreso
+          </button>
+        </form>
+      </div>
+
+      <!-- Listado -->
+      <div class="col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-[#E2E8F0]">
+        <h2 class="font-display font-semibold text-[#1E4620]">Egresos Registrados</h2>
+
+        <table class="w-full mt-4 text-sm" *ngIf="(expenses$ | async)?.length !== 0; else emptyState">
+          <thead>
+            <tr class="text-left text-xs text-[#718096] border-b border-[#E2E8F0]">
+              <th class="pb-2">Tipo</th>
+              <th class="pb-2">Descripción</th>
+              <th class="pb-2">Fecha</th>
+              <th class="pb-2 text-right">Monto</th>
+              <th class="pb-2 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let expense of (expenses$ | async)" class="border-b border-[#E2E8F0]/60">
+              <td class="py-3">
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                  [ngClass]="{
+                    'bg-[#E8F5E9] text-[#2E7D32]': expense.classification === 'fijo',
+                    'bg-[#FFF8E1] text-[#F57F17]': expense.classification === 'variable',
+                    'bg-[#FFEBEE] text-[#C62828]': expense.classification === 'deuda'
+                  }">
+                  {{ classificationLabel(expense.classification) }}
+                </span>
+              </td>
+              <td class="py-3">
+                <p>{{ expense.description }}</p>
+                <p class="text-xs text-[#718096]">{{ expense.category }}</p>
+              </td>
+              <td class="py-3 text-[#718096]">{{ expense.expense_date | date:'dd MMM y' }}</td>
+              <td class="py-3 text-right font-semibold text-[#2D3748]">Q {{ expense.amount | number:'1.2-2' }}</td>
+              <td class="py-3 text-right">
+                <button (click)="editExpense(expense)" class="text-[#2E7D32] hover:underline text-xs mr-3">Editar</button>
+                <button (click)="deleteExpense(expense.id)" class="text-[#D84315] hover:underline text-xs">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #emptyState>
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <span class="w-12 h-12 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] mb-4">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h1m5-5H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V9l-6-6z"/>
+              </svg>
+            </span>
+            <p class="font-medium text-[#2D3748] text-sm">Aún no has registrado egresos</p>
+            <p class="text-xs text-[#718096] mt-1 max-w-[220px]">
+              Utiliza el formulario de la izquierda para añadir registros mensuales.
+            </p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </main>
+</div>
