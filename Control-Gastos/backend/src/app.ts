@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import incomeRoutes from './routes/income.routes';
+import expenseRoutes from './routes/expense.routes';
 
 dotenv.config();
 
@@ -20,5 +21,6 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/incomes', incomeRoutes)
+app.use('/api/expenses', expenseRoutes);
 
 export default app;
