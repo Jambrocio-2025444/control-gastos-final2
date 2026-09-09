@@ -43,3 +43,27 @@ export interface CreateIncomeRequest {
   period: string;
   notes?: string;
 }
+
+export interface Expense {
+  id: number;
+  user_id: number;
+  classification: 'fijo' | 'variable' | 'deuda';
+  category: string;
+  amount: number;
+  description: string;
+  expense_date: string;
+  period: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateExpenseRequest {
+  classification: 'fijo' | 'variable' | 'deuda';
+  category: string;
+  amount: number;
+  description: string;
+  expense_date: string;
+  period: string;
+  notes?: string;
+}
