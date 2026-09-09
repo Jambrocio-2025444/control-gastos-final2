@@ -7,9 +7,6 @@
         <h1 class="font-display text-2xl font-semibold text-[#1E4620]">Gestión de Egresos</h1>
         <p class="text-sm text-[#718096] mt-1">Septiembre 2026 · actualizado hoy</p>
       </div>
-      <button class="bg-white border border-[#E2E8F0] rounded-lg px-4 py-2 text-sm font-medium text-[#2D3748] shadow-sm hover:border-[#48AD49] transition">
-        Este mes
-      </button>
     </div>
 
     <!-- KPIs por clasificación, con ícono -->
@@ -17,7 +14,7 @@
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
         <div>
           <p class="text-xs text-[#718096]">Gastos Fijos</p>
-          <p class="text-2xl font-bold text-[#2D3748] mt-1">Q {{ (totalFijos$ | async) ?? 0 | number:'1.0-2' }}</p>
+          <p class="text-2xl font-bold  text-finance-forest mt-1">Q {{ (totalFijos$ | async) ?? 0 | number:'1.2-2' }}</p>
         </div>
         <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -29,7 +26,7 @@
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
         <div>
           <p class="text-xs text-[#718096]">Gastos Variables</p>
-          <p class="text-2xl font-bold text-[#2D3748] mt-1">Q {{ (totalVariables$ | async) ?? 0 | number:'1.0-2' }}</p>
+          <p class="text-2xl font-bold text-[#1E4620] mt-1">Q {{ (totalVariables$ | async) ?? 0 | number:'1.2-2' }}</p>
         </div>
         <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -41,7 +38,7 @@
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
         <div>
           <p class="text-xs text-[#718096]">Deudas</p>
-          <p class="text-2xl font-bold text-[#2D3748] mt-1">Q {{ (totalDeudas$ | async) ?? 0 | number:'1.0-2' }}</p>
+          <p class="text-2xl font-bold text-[#1E4620] mt-1">Q {{ (totalDeudas$ | async) ?? 0 | number:'1.2-2' }}</p>
         </div>
         <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -88,7 +85,8 @@
 
           <div>
             <label class="block text-xs font-medium text-[#2D3748] mb-1">Monto</label>
-            <input type="number" step="0.01" formControlName="amount" placeholder="Q 0.00"
+            <span class="absolute left-3 text-xs font-bold text-gray-400">Q</span>
+            <input type="number" step="0.01" formControlName="amount" placeholder="0.00"
               class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49]" />
             <p *ngIf="f['amount'].errors?.['min'] && f['amount'].touched" class="text-xs text-[#C62828] mt-1">
               El monto debe ser mayor que cero.
@@ -116,12 +114,12 @@
                 La fecha es requerida.
               </p>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-[#2D3748] mb-1">Periodo</label>
-              <div class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm bg-[#E5F2E5] text-[#718096]">
-                Mensual
-              </div>
-            </div>
+           <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Periodo</label>
+            <div class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600">
+            Mensual
+          </div>
+        </div>
           </div>
 
           <div>
@@ -164,11 +162,11 @@
                 </span>
               </td>
               <td class="py-3">
-                <p>{{ expense.description }}</p>
                 <p class="text-xs text-[#718096]">{{ expense.category }}</p>
+                <p>{{ expense.description }}</p>
               </td>
               <td class="py-3 text-[#718096]">{{ expense.expense_date | date:'dd MMM y' }}</td>
-              <td class="py-3 text-right font-semibold text-[#2D3748]">Q {{ expense.amount | number:'1.2-2' }}</td>
+              <td class="py-3 text-right font-semibold text-[#1E4620]">Q {{ expense.amount | number:'1.2-2' }}</td>
               <td class="py-3 text-right">
                 <button (click)="editExpense(expense)" class="text-[#2E7D32] hover:underline text-xs mr-3">Editar</button>
                 <button (click)="deleteExpense(expense.id)" class="text-[#D84315] hover:underline text-xs">Eliminar</button>
