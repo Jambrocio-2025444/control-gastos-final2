@@ -63,4 +63,21 @@ export const initializeDatabase = async () => {
   } finally {
     client.release();
   }
+
+  await client.query(`
+  CREATE TABLE IF NOT EXISTS expenses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    classification VARCHAR(20) NOT NULL CHECK (classification IN ('fijo', 'variable', 'deuda')),
+    category VARCHAR(50) NOT NULL,
+    amount NUMERIC(12,2) NOT NULL CHECK (amount > 0),
+    description VARCHAR(255) NOT NULL,
+    expense_date DATE NOT NULL,
+    period VARCHAR(20) NOT NULL DEFAULT 'mes',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+console.log('Tabla expenses verificada');
 };
