@@ -12,6 +12,7 @@ import { DashboardComponent } from './features/auth/pages/dashboard/dashboard.co
 import { SessionExpiredModalComponent } from './features/auth/pages/session-expired/session-expired.component';
 import { SidebarComponent } from './features/auth/pages/sidebar/sidebar.component';
 import { IncomeComponent } from './features/auth/pages/income/income.component';
+import { ExpenseComponent } from './features/auth/pages/expense/expense.component';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { IncomeComponent } from './features/auth/pages/income/income.component';
     DashboardComponent,
     SessionExpiredModalComponent,
     SidebarComponent,
-    IncomeComponent
+    IncomeComponent,
+    ExpenseComponent
   ],
   bootstrap: [AppComponent],
   imports: [

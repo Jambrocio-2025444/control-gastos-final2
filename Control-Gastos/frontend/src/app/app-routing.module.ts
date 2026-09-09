@@ -4,6 +4,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './features/auth/pages/login/login.component';
 import { DashboardComponent } from './features/auth/pages/dashboard/dashboard.component';
 import { IncomeComponent } from './features/auth/pages/income/income.component';
+import { ExpenseComponent } from './features/auth/pages/expense/expense.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -18,6 +19,10 @@ const routes: Routes = [
   component: IncomeComponent,
   canActivate: [AuthGuard]
 },
+{ 
+  path: 'expenses', 
+  component: ExpenseComponent, 
+  canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/login' },
 ];
 
