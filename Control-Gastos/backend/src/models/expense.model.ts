@@ -12,10 +12,10 @@ export class ExpenseModel {
 
   static async create(userId: number, data: CreateExpenseRequest): Promise<Expense> {
     const result = await pool.query(
-      `INSERT INTO expenses (user_id, classification, category, amount, description, expense_date, period, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [userId, data.classification, data.category, data.amount, data.description, data.expense_date, data.period, data.notes || null]
+      `INSERT INTO expenses (user_id, classification, category, amount, description, expense_date, period, notes, include_in_debt_health)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *`,
+      [userId, data.classification, data.category, data.amount, data.description, data.expense_date, data.period, data.notes || null, data.include_in_debt_health ?? true]
     );
     return result.rows[0];
   }
@@ -31,10 +31,10 @@ export class ExpenseModel {
   static async update(id: number, userId: number, data: CreateExpenseRequest): Promise<Expense | null> {
     const result = await pool.query(
       `UPDATE expenses
-       SET classification = $1, category = $2, amount = $3, description = $4, expense_date = $5, period = $6, notes = $7, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $8 AND user_id = $9
-       RETURNING *`,
-      [data.classification, data.category, data.amount, data.description, data.expense_date, data.period, data.notes || null, id, userId]
+      SET classification = $1, category = $2, amount = $3, description = $4, expense_date = $5, period = $6, notes = $7, include_in_debt_health = $8, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $9 AND user_id = $10
+      RETURNING *`,
+      [data.classification, data.category, data.amount, data.description, data.expense_date, data.period, data.notes || null, data.include_in_debt_health ?? true, id, userId]
     );
     return result.rows[0] || null;
   }
@@ -45,5 +45,13 @@ export class ExpenseModel {
       [id, userId]
     );
     return (result.rowCount ?? 0) > 0;
+  }
+
+  static async sumForUser(userId: number): Promise<number> {
+    const result = await pool.query(
+      'SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE user_id = $1', 
+      [userId]
+    );
+    return Number(result.rows[0].total);
   }
 }
