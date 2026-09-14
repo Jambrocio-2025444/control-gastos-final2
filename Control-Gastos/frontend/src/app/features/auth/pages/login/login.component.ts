@@ -2,6 +2,9 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { environment } from '../../../../../environments/environment';
+
+declare const google: any;
 
 @Component({
     selector: 'app-login',
@@ -58,4 +61,32 @@ export class LoginComponent {
 
   get username() { return this.loginForm.get('username'); }
   get password() { return this.loginForm.get('password'); }
+
+  ngOnInit(): void {
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (response: any) => this.handleGoogleCredential(response.credential),
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('google-signin-button'),
+      { theme: 'outline', size: 'large', width: 320, text: 'continue_with' }
+    );
+  }
+
+  handleGoogleCredential(credential: string): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.loginWithGoogle(credential).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'No se pudo iniciar sesión con Google.';
+      }
+    });
+  }
 }
