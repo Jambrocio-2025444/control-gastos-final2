@@ -31,7 +31,7 @@
           </svg>
         </div>
         <p class="text-2xl font-bold text-finance-forest mt-1">
-          Q {{ (totalIncome$ | async) ?? 0 | number:'1.0-2' }}
+          Q {{ (totalIncome$ | async) ?? 0 | number:'1.2-2' }}
         </p>
         <p class="text-xs mt-1.5 text-finance-bright">Total registrado</p>
       </div>
@@ -45,12 +45,12 @@
           </svg>
         </div>
         <p class="text-2xl font-bold text-finance-forest mt-1">
-          Q {{ (totalExpenses$ | async) ?? 0 | number:'1.0-2' }}
+          Q {{ (totalExpenses$ | async) ?? 0 | number:'1.2-2' }}
         </p>
         <p class="text-xs mt-1.5 text-finance-orange">Total registrado</p>
       </div>
 
-      <!-- Ahorros (mock, módulo pendiente) -->
+      <!-- Ahorros (real, conectado al módulo de Metas de ahorro) -->
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <div class="flex items-start justify-between">
           <p class="text-xs text-gray-500">Ahorros</p>
@@ -59,8 +59,10 @@
             <circle cx="16" cy="10" r="0.5" fill="currentColor" stroke="none"/>
           </svg>
         </div>
-        <p class="text-2xl font-bold text-finance-forest mt-1">{{ savingsAmount }}</p>
-        <p class="text-xs mt-1.5 text-finance-bright">Pendiente de implementar</p>
+        <p class="text-2xl font-bold text-finance-forest mt-1">
+          Q {{ (totalSaved$ | async) ?? 0 | number:'1.2-2' }}
+        </p>
+        <p class="text-xs mt-1.5 text-finance-bright">Total registrado</p>
       </div>
 
       <!-- Deudas del mes (real) -->
@@ -72,7 +74,7 @@
           </svg>
         </div>
         <p class="text-2xl font-bold text-finance-forest mt-1">
-          Q {{ (totalDebts$ | async) ?? 0 | number:'1.0-2' }}
+          Q {{ (totalDebts$ | async) ?? 0 | number:'1.2-2' }}
         </p>
         <p class="text-xs mt-1.5 text-finance-orange">{{ (debtHealthPercent$ | async) ?? 0 }}% de tus ingresos</p>
       </div>
@@ -95,7 +97,7 @@
         </div>
 
         <div class="flex items-end justify-around gap-6 h-40 mt-6 border-b border-gray-100 pb-2">
-          <div *ngFor="let week of cashFlow" class="flex items-end gap-1.5 h-full">
+          <div *ngFor="let week of (cashFlow$ | async)" class="flex items-end gap-1.5 h-full">
             <div class="w-5 bg-finance-bright rounded-t-md" [style.height.%]="week.ingresos"></div>
             <div class="w-5 bg-finance-orange rounded-t-md" [style.height.%]="week.egresos"></div>
           </div>
@@ -145,8 +147,8 @@
             {{ (salaryCoversDebt$ | async) ? 'Su sueldo sí cubre sus deudas' : 'Su sueldo no cubre sus deudas' }}
           </p>
           <p class="text-xs text-gray-500 mt-0.5">
-            Después de cubrir Q {{ (totalDebts$ | async) ?? 0 | number:'1.0-2' }} de deudas,
-            le quedan Q {{ (remainingAfterDebt$ | async) ?? 0 | number:'1.0-2' }} para gastos y ahorro.
+            Después de cubrir Q {{ (totalDebtForHealth$ | async) ?? 0 | number:'1.2-2' }} de deudas,
+            le quedan Q {{ (((totalIncome$ | async) ?? 0) - ((totalExpenses$ | async) ?? 0)) | number:'1.2-2' }} para gastos y ahorro.
           </p>
         </div>
       </div>
@@ -160,10 +162,10 @@
       <div class="flex-1">
         <h2 class="font-display text-2xl font-semibold text-finance-forest">Su alcancía está creciendo</h2>
         <p class="text-lg text-gray-500 mt-2">
-          Ya reservaste {{ savingsAmount }} este mes. ¡Mantén el ritmo para alcanzar tu meta!
+          Ya reservaste Q {{ (totalSaved$ | async) ?? 0 | number:'1.2-2' }}<ng-container *ngIf="activeGoal$ | async as active"> para "{{ active.name }}"</ng-container>. ¡Mantén el ritmo para alcanzar tu meta!
         </p>
         <div class="w-full h-6 bg-finance-pale rounded-full mt-6 overflow-hidden">
-          <div class="h-full bg-finance-bright rounded-full" [style.width.%]="savingsProgressPercent"></div>
+          <div class="h-full bg-finance-bright rounded-full" [style.width.%]="(savingsProgressPercent$ | async) ?? 0"></div>
         </div>
       </div>
       <img src="assets/images/alcancia.png" alt="Alcancía" class="w-44 h-44 object-contain flex-shrink-0" />
