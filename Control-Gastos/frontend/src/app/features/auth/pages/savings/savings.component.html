@@ -1,0 +1,176 @@
+<div class="min-h-screen flex bg-[#E3EBE3] font-sans text-[#2D3748]">
+  <app-sidebar></app-sidebar>
+
+  <main class="ml-64 flex-1 p-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-[#1E4620]">Gestión de Ahorros</h1>
+        <p class="text-sm text-[#718096] mt-1">Septiembre 2026 · actualizado hoy</p>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 gap-5 mt-6">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
+        <div>
+          <p class="text-xs text-[#718096] tracking-wide">METAS ACTIVAS</p>
+          <p class="text-2xl font-bold text-[#1E4620] mt-1">{{ (activeGoalsCount$ | async) ?? 0 }}</p>
+          <p class="text-xs text-[#718096] mt-1.5">En progreso este mes</p>
+        </div>
+        <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18M5 4h11l-1.5 3.5L16 11H5"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E8F0] flex items-center justify-between">
+        <div>
+          <p class="text-xs text-[#718096] tracking-wide">METAS COMPLETADAS</p>
+          <p class="text-2xl font-bold text-[#1E4620] mt-1">{{ (completedGoalsCount$ | async) ?? 0 }}</p>
+          <p class="text-xs text-[#718096] mt-1.5">Alcanzadas con éxito</p>
+        </div>
+        <span class="w-10 h-10 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-5 mt-6">
+
+      <!-- Formulario -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#E2E8F0]">
+        <h2 class="font-display font-semibold text-[#1E4620]">Registrar Meta de Ahorro</h2>
+        <p class="text-xs text-[#718096] mt-1">
+          {{ editingId
+            ? 'Ya tienes una meta activa. Completa el monto restante antes de crear una nueva.'
+            : 'Define un nuevo objetivo financiero o abona a tus metas.' }}
+        </p>
+
+        <div *ngIf="errorMessage" class="bg-[#FFF8E1] border border-[#F57F17]/30 text-[#F57F17] px-3 py-2 rounded-lg text-xs mt-3">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4 space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Nombre de la Meta</label>
+            <select formControlName="name"
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49] disabled:bg-gray-50 disabled:text-gray-500">
+              <option value="" disabled>Selecciona una meta</option>
+              <option *ngFor="let name of goalNameOptions" [value]="name">{{ name }}</option>
+            </select>
+            <p *ngIf="f['name'].invalid && f['name'].touched" class="text-xs text-finance-orange mt-1">
+              Debes seleccionar el nombre de la meta.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Monto Objetivo (Meta)</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-xs font-bold text-gray-400">Q</span>
+              <input type="number" step="0.01" formControlName="target_amount" placeholder="0.00"
+                class="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#4CAF50]/30 focus:border-[#4CAF50] transition disabled:bg-gray-50 disabled:text-gray-500" />
+            </div>
+            <div *ngIf="f['target_amount'].invalid && f['target_amount'].touched" class="text-xs text-finance-orange mt-1 space-y-0.5">
+              <span *ngIf="f['target_amount'].errors?.['required']">El monto objetivo es requerido.</span>
+              <span *ngIf="!f['target_amount'].errors?.['required'] && f['target_amount'].errors?.['min']">El monto debe ser mayor que cero.</span>
+              <span *ngIf="!f['target_amount'].errors?.['required'] && !f['target_amount'].errors?.['min'] && f['target_amount'].errors?.['max']">El monto no puede tener más de 10 dígitos enteros.</span>
+              <span *ngIf="!f['target_amount'].errors?.['required'] && !f['target_amount'].errors?.['min'] && !f['target_amount'].errors?.['max'] && f['target_amount'].errors?.['maxDecimals']">El monto solo puede tener hasta 2 decimales.</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Aporte Inicial / Abono</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-xs font-bold text-gray-400">Q</span>
+              <input id="savings-amount-input" type="number" step="0.01" formControlName="amount" placeholder="0.00"
+                class="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#4CAF50]/30 focus:border-[#4CAF50] transition" />
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Saldo disponible: Q {{ (availableForSavings$ | async) ?? 0 | number:'1.2-2' }}</p>
+            <p *ngIf="editingId" class="text-xs text-gray-400">Puedes abonar hasta Q {{ (remainingForActive$ | async) ?? 0 | number:'1.2-2' }} para completar la meta.</p>
+
+            <div *ngIf="f['amount'].invalid && f['amount'].touched" class="text-xs text-finance-orange mt-1 space-y-0.5">
+              <span *ngIf="f['amount'].errors?.['required']">El monto es requerido.</span>
+              <span *ngIf="!f['amount'].errors?.['required'] && f['amount'].errors?.['min']">El monto debe ser mayor que cero.</span>
+              <span *ngIf="!f['amount'].errors?.['required'] && !f['amount'].errors?.['min'] && f['amount'].errors?.['max']">El monto no puede tener más de 10 dígitos enteros.</span>
+              <span *ngIf="!f['amount'].errors?.['required'] && !f['amount'].errors?.['min'] && !f['amount'].errors?.['max'] && f['amount'].errors?.['maxDecimals']">El monto solo puede tener hasta 2 decimales.</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-[#2D3748] mb-1">Descripción / Observaciones</label>
+            <textarea formControlName="description" rows="2" placeholder="Ej. Reserva de 3 meses para gastos imprevistos en cuenta de alto rendimiento."
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#48AD49] disabled:bg-gray-50 disabled:text-gray-500"></textarea>
+          </div>
+
+          <button type="submit" [disabled]="isSaving"
+            class="w-full bg-[#48AD49] text-white py-2.5 rounded-lg text-sm font-semibold hover:brightness-110 transition disabled:opacity-50">
+            + {{ editingId ? 'Abonar a' : 'Guardar' }} Meta
+          </button>
+        </form>
+      </div>
+
+      <!-- Listado -->
+      <div class="col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-[#E2E8F0]">
+        <h2 class="font-display font-semibold text-[#1E4620]">Metas Registradas</h2>
+        <p class="text-xs text-[#718096] mt-1">Visualiza y gestiona el progreso individual de cada meta de ahorro.</p>
+
+        <table class="w-full mt-4 text-sm" *ngIf="(goals$ | async)?.length !== 0; else emptyState">
+          <thead>
+            <tr class="text-left text-[10px] uppercase tracking-wide text-[#718096] border-b border-[#E2E8F0]">
+              <th class="pb-2">Nombre de la Meta</th>
+              <th class="pb-2 text-right">Objetivo</th>
+              <th class="pb-2 text-right">Aporte / Abono</th>
+              <th class="pb-2 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let goal of (goals$ | async)" class="border-b border-[#E2E8F0]/60">
+              <td class="py-3">
+                <div class="flex items-center gap-2">
+                  <p class="font-medium text-[#1E4620]">{{ goal.name }}</p>
+                  <span *ngIf="goal.status === 'completada'"
+                    class="text-[10px] px-2 py-0.5 rounded-full bg-[#E8F5E9] text-[#2E7D32] flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Completada
+                  </span>
+                </div>
+              </td>
+              <td class="py-3 text-right text-[#718096]">Q {{ goal.target_amount | number:'1.2-2' }}</td>
+              <td class="py-3 text-right font-semibold text-[#1E4620]">Q {{ goal.current_amount | number:'1.2-2' }}</td>
+              <td class="py-3 text-right">
+                <ng-container *ngIf="goal.status === 'activa'; else noActions">
+                  <button (click)="focusAmount(goal)" class="text-[#2E7D32] hover:underline text-xs mr-3">Editar</button>
+                  <button (click)="deleteGoal(goal)" class="text-[#D84315] hover:underline text-xs">Eliminar</button>
+                </ng-container>
+                <ng-template #noActions>
+                  <span class="text-xs text-[#CBD5E0]">—</span>
+                </ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #emptyState>
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <span class="w-12 h-12 rounded-xl bg-[#E5F2E5] flex items-center justify-center text-[#1E4620] mb-4">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 10h1a1 1 0 011 1v2a1 1 0 01-1 1h-1m-1-4v6a2 2 0 01-2 2h-1v2h-2v-2H9v2H7v-2H6a2 2 0 01-2-2v-2H3v-2h1v-1a5 5 0 015-5h4a5 5 0 013 1l2-1v3l-1 .5"/>
+                <circle cx="16" cy="10" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
+            <p class="font-medium text-[#2D3748] text-sm">Aún no has registrado metas de ahorro</p>
+            <p class="text-xs text-[#718096] mt-1 max-w-[220px]">
+              Utiliza el formulario de la izquierda para crear tu primera meta.
+            </p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </main>
+</div>

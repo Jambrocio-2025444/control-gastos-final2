@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../config/jwt';
+import { verifyToken, generateToken } from '../config/jwt';
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   try {
@@ -15,6 +15,12 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
     const token = authHeader.split(' ')[1];
     const decoded = verifyToken(token);
     (req as any).user = decoded;
+
+
+    const { iat, exp, ...payload } = decoded;
+    const refreshedToken = generateToken(payload);
+    res.setHeader('X-New-Token', refreshedToken);
+
     next(); 
   } catch (error) {
     res.status(401).json({

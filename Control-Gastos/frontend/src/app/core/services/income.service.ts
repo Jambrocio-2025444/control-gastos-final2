@@ -46,6 +46,10 @@ export class IncomeService {
     );
   }
 
+  getCurrentTotal(): number {
+  return this.incomesSubject.value.reduce((sum, i) => sum + Number(i.amount), 0);
+}
+
   updateIncome(id: number, data: CreateIncomeRequest): Observable<Income> {
     return this.http.put<ApiResponse<Income>>(`${this.API_URL}/${id}`, data).pipe(
       map(res => res.data),

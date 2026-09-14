@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IncomeService } from '../../../../core/services/income.service';
 import { Income, IncomeType } from '../../../../core/models/income.model';
+import { maxDecimalsValidator } from '../../../../core/validators/decimal.validator';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -24,7 +25,7 @@ export class IncomeComponent implements OnInit {
 
   form: FormGroup = this.fb.group({
     type: ['fijo', Validators.required],
-    amount: [null, [Validators.required, Validators.min(1.00)]],
+    amount: [null, [Validators.required, Validators.min(1.00), Validators.max(9999999999.99), maxDecimalsValidator(2)]],
     description: ['', Validators.required],
     income_date: ['', Validators.required],
     period: ['mes', Validators.required],
@@ -38,14 +39,13 @@ export class IncomeComponent implements OnInit {
   get f() { return this.form.controls; }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.isSaving = true;
-    this.errorMessage = '';
-    const payload = this.form.value;
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
+  }
+  this.isSaving = true;
+  this.errorMessage = '';
+  const payload = this.form.value;
 
     const request$ = this.editingId
       ? this.incomeService.updateIncome(this.editingId, payload)
@@ -88,4 +88,6 @@ export class IncomeComponent implements OnInit {
   typeLabel(type: IncomeType): string {
     return type === 'fijo' ? 'Fijo' : type === 'variable' ? 'Variable' : 'Otro';
   }
+
+  readonly maxDate = new Date().toISOString().substring(0, 10);
 }

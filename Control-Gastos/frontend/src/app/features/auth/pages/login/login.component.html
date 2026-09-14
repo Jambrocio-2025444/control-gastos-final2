@@ -5,7 +5,7 @@
   <div class="absolute w-[400px] h-[400px] rounded-full bg-[#f3602a]/25 blur-3xl top-1/3 -right-20 pointer-events-none z-0" aria-hidden="true"></div>
   <div class="absolute w-[450px] h-[450px] rounded-full bg-[#7abcd2]/30 blur-3xl -bottom-20 left-1/3 pointer-events-none z-0" aria-hidden="true"></div>
 
-  <!-- CONTENEDOR CONTENEDOR PRINCIPAL CURVADO CON GLASSMORPHISM Y DEGRADADO SUAVE -->
+  <!-- CONTENEDOR PRINCIPAL CURVADO CON GLASSMORPHISM Y DEGRADADO SUAVE -->
   <div class="w-full max-w-5xl min-h-[650px] flex flex-col md:flex-row rounded-[2.5rem] border border-white/30 bg-white/20 backdrop-blur-2xl shadow-2xl shadow-[#085731]/20 overflow-hidden relative z-10">
 
     <!-- SECCIÓN IZQUIERDA: MENSAJE CON TRANSICIÓN SUAVE HACIA LA DERECHA -->
@@ -125,6 +125,15 @@
               </svg>
               {{ isLoading ? 'Verificando…' : 'Iniciar sesión' }}
             </button>
+
+            <!-- SEPARADOR Y BOTÓN DE GOOGLE INTEGRADOS -->
+            <div class="flex items-center gap-3 my-4">
+              <div class="flex-1 h-px bg-[#085731]/20"></div>
+              <span class="text-xs text-[#085731]/60 uppercase tracking-widest font-medium">o continúa con</span>
+              <div class="flex-1 h-px bg-[#085731]/20"></div>
+            </div>
+
+            <div id="google-signin-button" class="flex justify-center min-h-[40px]"></div>
 
           </form>
         </div>

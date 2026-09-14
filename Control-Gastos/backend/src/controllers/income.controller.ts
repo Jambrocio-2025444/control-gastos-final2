@@ -17,13 +17,21 @@ function validateIncome(body: any): string | null {
   if (!body.description || !body.description.trim()) {
     return 'La descripción es requerida.';
   }
-  if (!body.income_date || isNaN(Date.parse(body.income_date))) {
-    return 'La fecha ingresada no es válida.';
-  }
-  if (!body.period || !body.period.trim()) {
+  if (new Date(body.income_date) > new Date()) {
+  return 'La fecha no puede ser posterior al día de hoy.';
+  }if 
+  (!body.period || !body.period.trim()) {
     return 'El período es requerido.';
   }
+    if (!hasValidDecimals(body.amount)) {
+    return 'El monto solo puede tener hasta 2 decimales.';
+  }
   return null;
+}
+
+function hasValidDecimals(amount: any, maxDecimals = 2): boolean {
+  const decimalPart = String(amount).split('.')[1];
+  return !decimalPart || decimalPart.length <= maxDecimals;
 }
 
 export class IncomeController {
@@ -44,7 +52,7 @@ export class IncomeController {
       if (validationError) {
         return res.status(400).json({ success: false, message: validationError });
       }
-
+      
       const userId = (req as any).user.id;
       const data: CreateIncomeRequest = req.body;
       const income = await IncomeModel.create(userId, data);
