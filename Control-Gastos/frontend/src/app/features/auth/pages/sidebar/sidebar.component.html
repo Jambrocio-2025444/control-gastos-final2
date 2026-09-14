@@ -43,15 +43,19 @@
       <span class="first-letter:uppercase">{{ item.label }}</span>
     </a>
   </nav>
+
   <!-- Tarjeta de Usuario Inferior -->
   <div class="mt-auto bg-[#EAF3E8] rounded-2xl p-4 text-[#1F4D2C]">
     
     <!-- Info del Usuario -->
     <div class="flex items-center gap-3">
-      <!-- Avatar en Verde Brillante (#4CAF50) -->
-      <div class="w-10 h-10 rounded-full bg-[#4CAF50] flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm">
-        {{ userInitials }}
+      <!-- Avatar con soporte para imagen de Google o iniciales por defecto -->
+      <div class="w-10 h-10 rounded-full bg-[#4CAF50] flex items-center justify-center text-xs font-bold text-white shrink-0 overflow-hidden shadow-sm">
+        <img *ngIf="currentUser?.avatar_url; else initialsFallback"
+          [src]="currentUser?.avatar_url" alt="Foto de perfil" class="w-full h-full object-cover" />
+        <ng-template #initialsFallback>{{ userInitials }}</ng-template>
       </div>
+
       <div class="min-w-0 flex-1">
         <!-- Nombre de usuario en Verde Bosque (#1F4D2C) -->
         <p class="text-sm font-bold truncate text-[#1F4D2C]">{{ currentUser?.username || 'Usuario' }}</p>

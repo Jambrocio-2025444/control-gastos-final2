@@ -21,7 +21,7 @@ export class SidebarComponent {
     { label: 'Resumen', icon: 'bar-chart', route: '/dashboard' },
     { label: 'ingrese sus ingresos', icon: 'wallet', route: '/income' },
     { label: 'Ingrese sus egresos', icon: 'bar-chart', route: '/expenses' },
-    { label: 'Metas de ahorro', icon: 'piggy-bank', route: null },
+    { label: 'Metas de ahorro', icon: 'piggy-bank', route: '/savings' },
   ];
 
   get roleLabel(): string {
