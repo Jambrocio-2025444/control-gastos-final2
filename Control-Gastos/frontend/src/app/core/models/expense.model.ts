@@ -17,6 +17,7 @@ export interface Expense {
   user_id: number;
   classification: ExpenseClassification;
   category: string;
+  include_in_debt_health: boolean;
   amount: number;
   description: string;
   expense_date: string;
@@ -29,6 +30,7 @@ export interface Expense {
 export interface CreateExpenseRequest {
   classification: ExpenseClassification;
   category: string;
+  include_in_debt_health?: boolean;
   amount: number;
   description: string;
   expense_date: string;
