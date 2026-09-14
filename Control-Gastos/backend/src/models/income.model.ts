@@ -46,4 +46,17 @@ export class IncomeModel {
     );
     return (result.rowCount ?? 0) > 0;
   }
+
+  static async existsForUser(userId: number): Promise<boolean> {
+    const result = await pool.query('SELECT 1 FROM incomes WHERE user_id = $1 LIMIT 1', [userId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  static async sumForUser(userId: number): Promise<number> {
+    const result = await pool.query(
+      'SELECT COALESCE(SUM(amount), 0) as total FROM incomes WHERE user_id = $1', 
+      [userId]
+    );
+    return Number(result.rows[0].total);
+  }
 }
