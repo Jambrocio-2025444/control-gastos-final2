@@ -27,6 +27,11 @@ export const initializeDatabase = async () => {
       );
     `);
 
+    await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
+    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE;`);
+    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;`);
+    console.log('Columnas de Google verificadas en users');
+
     const adminPassword = await bcrypt.hash('admin123', 10);
     const userPassword = await bcrypt.hash('user123', 10);
 
@@ -57,27 +62,51 @@ export const initializeDatabase = async () => {
     `);
 
     console.log('Tabla incomes verificada');
+
+    // --- Módulo de Egresos ---
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS expenses (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        classification VARCHAR(20) NOT NULL CHECK (classification IN ('fijo', 'variable', 'deuda')),
+        category VARCHAR(50) NOT NULL,
+        amount NUMERIC(12,2) NOT NULL CHECK (amount > 0),
+        description VARCHAR(255) NOT NULL,
+        expense_date DATE NOT NULL,
+        period VARCHAR(20) NOT NULL DEFAULT 'mes',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('Tabla expenses verificada');
+
+    await client.query(`
+      ALTER TABLE expenses
+      ADD COLUMN IF NOT EXISTS include_in_debt_health BOOLEAN NOT NULL DEFAULT true;
+    `);
+
+    // --- Módulo de Metas de Ahorro ---
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS savings_goals (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL,
+        target_amount NUMERIC(12,2) NOT NULL CHECK (target_amount > 0),
+        current_amount NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (current_amount >= 0),
+        status VARCHAR(20) NOT NULL DEFAULT 'activa' CHECK (status IN ('activa', 'completada')),
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        completed_at TIMESTAMP
+      );
+    `);
+    console.log('Tabla savings_goals verificada');
+
   } catch (error) {
     console.error('Error al inicializar la base de datos:', error);
     throw error;
   } finally {
     client.release();
   }
-
-  await client.query(`
-  CREATE TABLE IF NOT EXISTS expenses (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    classification VARCHAR(20) NOT NULL CHECK (classification IN ('fijo', 'variable', 'deuda')),
-    category VARCHAR(50) NOT NULL,
-    amount NUMERIC(12,2) NOT NULL CHECK (amount > 0),
-    description VARCHAR(255) NOT NULL,
-    expense_date DATE NOT NULL,
-    period VARCHAR(20) NOT NULL DEFAULT 'mes',
-    notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-`);
-console.log('Tabla expenses verificada');
 };
