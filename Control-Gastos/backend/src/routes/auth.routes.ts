@@ -5,9 +5,11 @@ import { authMiddleware } from '../middleware/auth.middleware';
 const router = Router();
 
 // Ruta pública: login
-router.post('/login', AuthController.login);
+router.post('/login', AuthController.login); router.post('/google', AuthController.google);
 
-// Ruta protegida: obtener usuario actual
+
 router.get('/me', authMiddleware, AuthController.me);
+
+router.get('/ping', authMiddleware, AuthController.ping);
 
 export default router;
