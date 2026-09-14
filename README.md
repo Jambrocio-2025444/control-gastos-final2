@@ -6,16 +6,16 @@ Es una aplicación web enfocada en el manejo de las finanzas personales y el man
 
 ## ¿Qué hace cada apartado?
 
-- **Resumen**: es la pantalla principal, muestra un resumen rápido de cómo van tus finanzas (ingresos, egresos, ahorro y deudas del mes).
-- **Ingresos**: para registrar todo el dinero que te entra, clasificado en fijos, variables u otros ingresos.
-- **Egresos**: para registrar tus gastos, clasificados en fijos o prioritarios, variables o deudas.
-- **Metas de ahorro**: para ver cuánto dinero necesitas ahorrar para cumplir una meta.
+- **Resumen**: Es la pantalla principal, muestra un resumen rápido de cómo van tus finanzas (ingresos, egresos, ahorro y deudas del mes).
+- **Ingresos**: Para registrar todo el dinero que te entra, clasificado en fijos, variables u otros ingresos.
+- **Egresos**: Para registrar tus gastos, clasificados en fijos o prioritarios, variables o deudas.
+- **Metas de ahorro**: Para ver cuánto dinero necesitas ahorrar para cumplir una meta.
 
 ## Tecnologías
 
 - **Backend**: NodeJS, Typescript, Express.
 - **Frontend**: Angular
-- **Seguridad**: JWT
+- **Seguridad**: JWT & Google Auth
 - **Base de datos**: PostgreSQL
 
 ## Requisitos previos
@@ -30,15 +30,43 @@ Verifica que los tengas instalados:
 ## Instalación
 
 1. Clona el siguiente repositorio:
+   ```bash
+  https://github.com](https://github.com/Jambrocio-2025444/control-gastos-final2.git
    ```
-   https://github.com/Jambrocio-2025444/control-gastos.git
+
+2. Abre Visual Studio Code y abre la carpeta del proyecto que acabas de clonar (`control-gastos`).
+
+3. **Configuración del Backend:**
+   Abre una terminal en VS Code y ejecuta los siguientes comandos para entrar a la carpeta del servidor e instalar las dependencias base:
+   ```bash
+   cd backend
+   pnpm install
    ```
-2. Abre Visual Studio Code y abre la carpeta donde lo clonaste.
-3. Crea un archivo `.env` dentro de la carpeta `backend`, guíate del archivo `.env.example` para ingresar tus datos. Tendrás que escribir lo siguiente dentro del archivo `.env`: `DB_PASSWORD=tuContraseña` y tu palabra clave en `JWT_SECRET`.
-4. En una terminal, escribe lo siguiente para entrar al proyecto:
+
+4. **Instalación de la API de Google:**
+   En la misma terminal del backend, asegúrate de instalar la biblioteca oficial de autenticación de Google ejecuntando:
+   ```bash
+   pnpm add google-auth-library
    ```
-   cd control-gastos
-   cd Control-Gastos
+
+5. Crea un archivo llamado `.env` dentro de la carpeta `backend`. Puedes guiarte del archivo `.env.example` para ingresar tus credenciales. El archivo debe contener obligatoriamente:
+   ```env
+   DB_PASSWORD=tuContraseñaDePostgres
+   JWT_SECRET=tuPalabraClaveSecreta
+   GOOGLE_CLIENT_ID=elCodigoQueTeDaGoogleCloud
    ```
-5. Escribe `cd backend` y luego `npm run dev`. Si todo salió bien, te aparecerá el siguiente mensaje: `Base de datos inicializada`.
-6. En una nueva terminal, haz lo mismo del paso 4 y, cuando estés dentro del proyecto, escribe `cd frontend`. Estando dentro del frontend, escribe `ng serve`. Si todo salió bien, te redireccionará en tu navegador al login.
+
+6. Inicia el servidor de desarrollo del backend con el siguiente comando:
+   ```bash
+   pnpm run dev
+   ```
+   *Si todo salió bien, verás el mensaje:* `Base de datos inicializada`.
+
+7. **Configuración del Frontend:**
+   Abre una **nueva terminal** en VS Code (dejando la del backend corriendo) y ejecuta lo siguiente para instalar las dependencias del cliente y levantar la interfaz de Angular:
+   ```bash
+   cd frontend
+   pnpm install
+   ng serve
+   ```
+   *Si todo compila correctamente, el sistema te redireccionará en tu navegador automáticamente al Login.*
