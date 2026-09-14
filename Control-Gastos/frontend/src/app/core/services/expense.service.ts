@@ -22,12 +22,22 @@ export class ExpenseService {
     map(expenses => expenses.reduce((sum, e) => sum + Number(e.amount), 0))
   );
 
+  totalDebtForHealth$: Observable<number> = this.expenses$.pipe(
+    map(expenses => expenses
+      .filter(e => e.classification === 'deuda' && e.include_in_debt_health)
+      .reduce((sum, e) => sum + Number(e.amount), 0))
+  );
+
   totalByClassification(classification: ExpenseClassification): Observable<number> {
     return this.expenses$.pipe(
       map(expenses => expenses
         .filter(e => e.classification === classification)
         .reduce((sum, e) => sum + Number(e.amount), 0))
     );
+  }
+
+  getCurrentTotal(): number {
+    return this.expensesSubject.value.reduce((sum, e) => sum + Number(e.amount), 0);
   }
 
   loadExpenses(): void {

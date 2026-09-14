@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, map } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map, merge, fromEvent, throttleTime } from 'rxjs';
 import { Router } from '@angular/router';
 import { User, LoginRequest, LoginResponse } from '../models/user.model';
 import { environment } from '../../../environments/environment';
@@ -26,8 +26,12 @@ export class AuthService {
 
   private logoutTimer: ReturnType<typeof setTimeout> | null = null;
 
+
+  private readonly ACTIVITY_THROTTLE_MS = 30_000;
+
   constructor() {
     this.loadStoredAuth();
+    this.listenForActivity();
   }
 
   private loadStoredAuth(): void {
@@ -100,6 +104,12 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
+
+  updateToken(newToken: string): void {
+    localStorage.setItem('access_token', newToken);
+    this.scheduleAutoLogout(newToken);
+  }
+
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
@@ -115,11 +125,25 @@ export class AuthService {
     const msUntilExpiry = expiresAt - Date.now();
 
     if (msUntilExpiry <= 0) {
-      this.notifySessionExpired();
+      this.checkExpiryAndLogout();
       return;
     }
 
-    this.logoutTimer = setTimeout(() => this.notifySessionExpired(), msUntilExpiry);
+    this.logoutTimer = setTimeout(() => this.checkExpiryAndLogout(), msUntilExpiry);
+  }
+
+
+  private checkExpiryAndLogout(): void {
+    const currentToken = this.getToken();
+    if (!currentToken) return;
+
+    const expiresAt = this.getTokenExpiration(currentToken);
+    if (expiresAt && expiresAt > Date.now()) {
+      this.scheduleAutoLogout(currentToken);
+      return;
+    }
+
+    this.notifySessionExpired();
   }
 
   private getTokenExpiration(token: string): number | null {
@@ -130,5 +154,45 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  loginWithGoogle(credential: string): Observable<LoginResponse> {
+  return this.http.post<ApiResponse<LoginResponse>>(`${this.API_URL}/auth/google`, { credential }).pipe(
+    map(response => response.data),
+    tap(data => {
+      if (data.token) {
+        localStorage.setItem('access_token', data.token);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+        this.currentUserSubject.next(data.user);
+        this.scheduleAutoLogout(data.token);
+      }
+    })
+  );
+}
+
+
+  private listenForActivity(): void {
+    const activity$ = merge(
+      fromEvent(document, 'mousemove'),
+      fromEvent(document, 'click'),
+      fromEvent(document, 'keydown'),
+      fromEvent(document, 'scroll'),
+      fromEvent(document, 'touchstart'),
+    );
+
+    activity$.pipe(throttleTime(this.ACTIVITY_THROTTLE_MS)).subscribe(() => {
+      this.pingActivity();
+    });
+  }
+
+
+  private pingActivity(): void {
+    if (!this.isAuthenticated()) return;
+
+    this.http.get(`${this.API_URL}/auth/ping`).subscribe({
+      error: () => {
+
+      },
+    });
   }
 }
